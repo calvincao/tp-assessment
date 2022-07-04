@@ -21,6 +21,7 @@ const convertToUSD = (num) => {
 const fetchData = async (url) => {
   try {
     const res = await fetch(url);
+    if (!res.ok) return Error(res.status);
     const text = await res.text();
     return text;
   } catch (err) {
@@ -33,6 +34,11 @@ const createTable = async () => {
     fetchData('https://publictest.sandbox.tabapay.net/data2'),
   ];
   const allRequestsData = await Promise.all(requests);
+  if (allRequestsData.some((data) => data instanceof Error)) {
+    document.querySelector('h1').innerText = 'Error fetching data';
+    document.querySelector('div').remove();
+    return;
+  }
   const identity = allRequestsData[0].split('\n').map((entry) => {
     const splitEntry = entry.split(',');
     return {
